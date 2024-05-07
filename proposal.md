@@ -2,15 +2,18 @@
 
 
 ## Description 
-I am going to be making a rip-off Flappy Bird! 
-This game will be like the one we've all played on our phones over the years and still love to play to kill some time. 
-You will have to hit the mouse to keep the bird up in the sky and not hit the poles and die. 
-As you progress, the speed of the bird will gradually increase. 
+I am going to be making a rip-off Slither.io! 
+This game will contain a snake roaming around the screen trying to eat the "food" to grow, and have a button for adding a couple of other
+snakes which will try to kill you by eating more and cutting. 
 
 ## Needs to Have List 
-- A good bird sprite
-- A pipe sprite of different lengths and in random places 
+- A working snake, with the appropriate snake-like movement. 
+- Whole bunch of food scattered everywhere for you to gobble up and grow!
+- Growing the snake as it eats more food 
+- Adding more snakes for you to fight to play further 
+- 
 
 ## Nice to Have List 
-- thing 3
-- thing 4
+- Having a "boss" level which would be pretty hard to win
+- Making the "area-cut-kill" logic as in the actual game
+- 
