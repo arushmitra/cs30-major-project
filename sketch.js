@@ -33,10 +33,7 @@ for(let i = foods.length-1; i > 0; i--){
     foods.splice(i, 1);
     snake.grow(); 
 }
-
 }
-
-
 
 class slitherSnake{
   constructor(x,y){
