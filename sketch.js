@@ -5,10 +5,17 @@
 let snake;
 let food;
 let foods = [];
+let opponent1;
+let opponent2;
+let opponent3;
+let opponent4;
+let opponent5;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  snake = new slitherSnake(width/2,height/2);
+  snake = new slitherSnake(width/2,height);
+
+
 
   // spawning food all over the place 
   for(let spawnFood = 0; spawnFood < 350; spawnFood++){
@@ -18,7 +25,7 @@ function setup() {
 }
 
 function draw() {
-  background("darkblue");
+  background("#0e0069");
   snake.update();
   snake.display();
 
@@ -27,14 +34,54 @@ function draw() {
     foodCheck.display();
   }
 
-// check if snake hits the food
-for(let i = foods.length-1; i > 0; i--){
-  if(dist(snake.x, snake.y, foods[i].x, foods[i].y) < snake.radius){
-    foods.splice(i, 1);
-    snake.grow(); 
+  // check if snake hits the food
+  for(let i = foods.length-1; i > 0; i--){
+    if(dist(snake.x, snake.y, foods[i].x, foods[i].y) < snake.radius){
+      foods.splice(i, 1);
+      snake.grow(); 
+    }
+  }
 }
-}
+class opponentSnake{
+  constructor(x,y){
+    this.speed = 2;
+    this.radius = 10;
+    this.x = x;
+    this.y = y;
+    this.color = color(random(255), random(255), random(255));
+    this.length = 1;
+    this.path = [];
+  }
 
+  display() {
+    fill(this.color);
+    noStroke();
+    for (let i = 0; i < this.path.length; i++) {
+      let point = this.path[i];
+      circle(point.x, point.y, this.radius * 2);
+    }
+  }
+  grow(){
+    //grow the snake 
+    this.length++;
+  }
+
+  update(){
+    this.move();
+    this.wrapAroundScreen();
+    this.updatePath();
+  }
+
+  updatePath(){
+    // adding one more element to this.path which helps the co-ordinates of the vector (snake)
+    this.path.unshift(createVector(this.x,this.y));
+
+    // if the path's length is more than the size of snake keep it going 
+    while(this.path.length > this.length){
+      this.path.pop();
+    }
+  }    
+}
 class slitherSnake{
   constructor(x,y){
     this.speed = 5;
@@ -53,6 +100,23 @@ class slitherSnake{
     let point = this.path[i];
     circle(point.x, point.y, this.radius * 2);
   }
+  
+  wrapAroundScreen() {
+    // Wrap around the screen if it falls off
+    if (this.x < 0) {
+      this.x += width;
+    }
+    if (this.x > width) {
+      this.x -= width;
+    }
+    if (this.y < 0) {
+      this.y += height;
+    }
+    if (this.y > height) {
+      this.y -= height;
+    }
+  }
+  
 }
 
 
@@ -69,9 +133,9 @@ class slitherSnake{
       let speedChanger = this.speed / 1.5;
       this.x += dx * speedChanger;
       this.y += dy * speedChanger;
-  
-  
-
+    
+  }
+  grow(){
     //grow the snake 
     this.length++;
   }
