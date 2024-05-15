@@ -14,6 +14,7 @@ let opponent5;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   snake = new slitherSnake(width/2,height);
+  opponent1 = new opponentSnake(width,height);
 
 
 
@@ -28,6 +29,8 @@ function draw() {
   background("#0e0069");
   snake.update();
   snake.display();
+  opponent1.display();
+  opponent1.update();
 
   // update foods 
   for(let foodCheck of foods){
@@ -80,7 +83,21 @@ class opponentSnake{
     while(this.path.length > this.length){
       this.path.pop();
     }
-  }    
+  }  
+  move(){
+    let dx = random(0,10)- this.x;
+    let dy= random(0,10)-this.y;
+
+    let distance = sqrt(dx * dx + dy * dy);
+      dx /= distance;
+      dy /= distance;
+  
+      // Adjust speed
+      let speedChanger = this.speed / 1.5;
+      this.x += dx * speedChanger;
+      this.y += dy * speedChanger;
+
+  }  
 }
 class slitherSnake{
   constructor(x,y){
@@ -100,6 +117,7 @@ class slitherSnake{
     let point = this.path[i];
     circle(point.x, point.y, this.radius * 2);
   }
+}
   
   wrapAroundScreen() {
     // Wrap around the screen if it falls off
@@ -115,9 +133,9 @@ class slitherSnake{
     if (this.y > height) {
       this.y -= height;
     }
-  }
-  
-}
+  } 
+
+
 
 
   move(){
