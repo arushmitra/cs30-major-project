@@ -7,14 +7,13 @@ let food;
 let foods = [];
 let opponent1;
 let opponent2;
-let opponent3;
-let opponent4;
-let opponent5;
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   snake = new slitherSnake(width/2,height);
   opponent1 = new opponentSnake(width,height);
+  opponent2 = new opponentSnake(0,10);
 
 
 
@@ -74,7 +73,7 @@ class opponentSnake{
   }
   grow(){
     //grow the snake 
-    this.length = this.length + 1.2;
+    this.length = this.length + 2;
   }
 
   update(){
@@ -106,12 +105,10 @@ class opponentSnake{
       this.y -= height;
     }
   } 
-
-
-  
   move(){
-    let dx = random(0,10)- this.x; // CAN I CHANGE THIS TO FOLLOW THE SNAKE INSTEAD????
-    let dy= random(0,10)-this.y;
+
+    let dx = (foods.x)- this.x; 
+    let dy= (foods.y)-this.y;
 
     let distance = sqrt(dx * dx + dy * dy);
     dx /= distance;
@@ -209,7 +206,7 @@ class Food{
     this.color = color(random(255),random(255),random(255));
   }
 
-  display(){
+  display(){ 
     noStroke();
     fill(this.color)
     circle(this.x,this.y,this.radiusOfFood * 2);
