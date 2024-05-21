@@ -11,9 +11,9 @@ let opponent2;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  snake = new slitherSnake(width/2,height);
-  opponent1 = new opponentSnake(width,height);
-  opponent2 = new opponentSnake(0,10);
+  snake = new slitherSnake(width/2,height/2);
+  opponent1 = new opponentSnake(0,height);
+  opponent2 = new opponentSnake(width,height);
 
 
 
@@ -28,8 +28,14 @@ function draw() {
   background("#0e0069");
   snake.update();
   snake.display();
+
   opponent1.display();
   opponent1.update();
+
+  opponent2.display();
+  opponent2.update();
+  console.log(opponent2);
+  console.log(opponent1);
 
   // update foods 
   for(let foodCheck of foods){
@@ -106,20 +112,33 @@ class opponentSnake{
     }
   } 
   move(){
+    // are the zeros screwing somrhting 
+    let closestFood; 
+    let closestDistance = Infinity;
+    
+    if(foods.length === 0){
+      return;
+    }
 
-    let dx = (foods.x)- this.x; 
-    let dy= (foods.y)-this.y;
-
-    let distance = sqrt(dx * dx + dy * dy);
-    dx /= distance;
-    dy /= distance;
+    for(let food of foods){
+      let d = dist(this.x, this.y, food.x, food.y);
+      if (d < closestDistance){
+        closestDistance = d;
+        closestFood = food;
+      }
+    }
+    if (closestFood) {
+      let dx = closestFood.x - this.x;
+      let dy = closestFood.y - this.y;
+      let distance = sqrt(dx * dx + dy * dy);
+      dx /= distance;
+      dy /= distance;
   
-    // Adjust speed
-    let speedChanger = this.speed / 1.5;
-    this.x += dx * speedChanger;
-    this.y += dy * speedChanger;
-
-  }  
+      let speedChanger = this.speed / 1.5;
+      this.x += dx * speedChanger;
+      this.y += dy * speedChanger;
+    }
+  }
 }
 class slitherSnake{
   constructor(x,y){
@@ -156,9 +175,6 @@ class slitherSnake{
       this.y -= height;
     }
   } 
-
-
-
 
   move(){
     // Move the snake towards the mouse cursor
