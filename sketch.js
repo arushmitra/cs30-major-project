@@ -60,7 +60,16 @@ function draw() {
     checkFoodCollision(opponent);
   }
 }
+function mousePressed() {
+  let dx = mouseX - width / 2;
+  let dy = mouseY - height / 2;
+  let angle = atan2(dy, dx); // using arc tan to handle -ve values
 
+  for (let i = 0; i < 3; i++) {
+    let opponent = new OpponentSnake(snake.x + cos(angle) * 50, snake.y + sin(angle) * 50);
+    opponents.push(opponent);
+  }
+}
 function updateCamera() {
   cameraX = snake.x;
   cameraY = snake.y;
