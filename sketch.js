@@ -24,13 +24,13 @@ function setup() {
   cameraX = snake.x;
   cameraY = snake.y;
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 3; i++) {
     let opponent = new OpponentSnake(random(worldWidth), random(worldHeight));
     opponents.push(opponent);
   }
 
   // Spawn food all over the place
-  for (let i = 0; i < 1000; i++) {
+  for (let i = 0; i < 2000; i++) {
     let newFood = new Food(random(worldWidth), random(worldHeight));
     foods.push(newFood);
   }
