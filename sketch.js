@@ -2,11 +2,20 @@
 // Arush Mitra 
 // Comp Sci 30 Major Project
 
-
 let snake;
 let foods = [];
 let opponents = [];
+let score = 0; // Initialize score
 let cameraX, cameraY;
+let state = "start";
+let startButton = new Clickable();
+let startImage;
+let worldWidth = 3000;
+let worldHeight = 3000;
+
+function preload() {
+  startImage = loadImage('title-page.png'); // Load your image here
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -15,60 +24,72 @@ function setup() {
   cameraX = snake.x;
   cameraY = snake.y;
 
-  for (let i = 0; i < 3; i++) {
-    let opponent = new OpponentSnake(random(width), random(height));
+  for (let i = 0; i < 10; i++) {
+    let opponent = new OpponentSnake(random(worldWidth), random(worldHeight));
     opponents.push(opponent);
   }
 
   // Spawn food all over the place
   for (let i = 0; i < 1000; i++) {
-    let newFood = new Food(random(width), random(height));
+    let newFood = new Food(random(worldWidth), random(worldHeight));
     foods.push(newFood);
   }
+
+  startButton = new Clickable();
+  startButton.x = width / 2 - 100;
+  startButton.y = height / 2 + 100;
+  startButton.width = 200;
+  startButton.height = 100;
+  startButton.textSize = 32;
+  startButton.text = "Start Game";
+  startButton.onPress = () => {
+    state = "game";
+  };
 }
 
 function draw() {
   background("#15212f");
+  if (state === "start") {
+    image(startImage, width / 2 - startImage.width / 2, height / 2 - startImage.height / 2 - 150);
+    startButton.draw();
+  } else if (state === "game") {
+    updateCamera();
+    // Center the camera on the snake and apply scaling
+    translate(width / 2, height / 2);
+    scale(1.0); // Optional: Adjust zoom level if needed
+    translate(-cameraX, -cameraY);
 
-  updateCamera();
+    // Display food
+    for (let food of foods) {
+      food.display();
+    }
 
-  // Center the camera on the snake and apply scaling
-  translate(width / 2, height / 2);
-  scale(1.0); // Optional: Adjust zoom level if needed
-  translate(-cameraX, -cameraY);
+    // Update and display the player's snake
+    snake.update();
+    snake.display();
 
-  // Display food
-  for (let food of foods) {
-    food.display();
-  }
+    // Update and display opponent snakes
+    for (let opponent of opponents) {
+      opponent.update();
+      opponent.display();
+    }
 
-  // Update and display the player's snake
-  snake.update();
-  snake.display();
+    // Check if the player's snake hits any food
+    checkFoodCollision(snake);
 
-  // Update and display opponent snakes
-  for (let opponent of opponents) {
-    opponent.update();
-    opponent.display();
-  }
-
-  // Check if the player's snake hits any food
-  checkFoodCollision(snake);
-
-  // Check if opponent snakes hit any food
-  for (let opponent of opponents) {
-    checkFoodCollision(opponent);
+    // Display score
+    // Stick the score to the top left 
+    push();
+    textSize(20);
+    fill(255);
+    text("Score: " + score, 10, 30); 
+    pop();
   }
 }
 function mousePressed() {
   let dx = mouseX - width / 2;
   let dy = mouseY - height / 2;
-  let angle = atan2(dy, dx); // using arc tan to handle -ve values
-
-  for (let i = 0; i < 3; i++) {
-    let opponent = new OpponentSnake(snake.x + cos(angle) * 50, snake.y + sin(angle) * 50);
-    opponents.push(opponent);
-  }
+  let angle = atan2(dy, dx);
 }
 function updateCamera() {
   cameraX = snake.x;
@@ -80,6 +101,7 @@ function checkFoodCollision(snake) {
     if (dist(snake.x, snake.y, foods[i].x, foods[i].y) < snake.radius) {
       foods.splice(i, 1);
       snake.grow();
+      score += 1; // Increase score
     }
   }
 }
@@ -110,6 +132,10 @@ class SlitherSnake {
     let angle = atan2(dy, dx);
     this.x += cos(angle) * this.speed;
     this.y += sin(angle) * this.speed;
+
+    // Ensure the snake stays within the world boundaries
+    this.x = constrain(this.x, 0, worldWidth);
+    this.y = constrain(this.y, 0, worldHeight);
   }
 
   grow() {
@@ -136,7 +162,7 @@ class OpponentSnake {
     this.x = x;
     this.y = y;
     this.color = color(random(255), random(255), random(255));
-    this.length = 1;
+    this.length = 10;  // Initial length
     this.path = [];
   }
 
@@ -154,8 +180,22 @@ class OpponentSnake {
   }
 
   update() {
-    this.move();
-    this.updatePath();
+    if (!this.collidedWithFood()) {
+      this.move();
+      this.updatePath();
+    }
+  }
+
+  collidedWithFood() {
+    for (let i = foods.length - 1; i >= 0; i--) {
+      let d = dist(this.x, this.y, foods[i].x, foods[i].y);
+      if (d < this.radius + foods[i].radiusOfFood) {
+        this.grow();
+        foods.splice(i, 1);
+        return true;
+      }
+    }
+    return false;
   }
 
   updatePath() {
@@ -189,6 +229,10 @@ class OpponentSnake {
       dy /= distance;
       this.x += dx * this.speed;
       this.y += dy * this.speed;
+
+      // Ensure the snake stays within the world boundaries
+      this.x = constrain(this.x, 0, worldWidth);
+      this.y = constrain(this.y, 0, worldHeight);
     }
   }
 }
@@ -205,5 +249,9 @@ class Food {
     fill(this.color);
     noStroke();
     circle(this.x, this.y, this.radiusOfFood * 2);
+
+    // Ensure food stays within the world boundaries
+    this.x = constrain(this.x, 0, worldWidth);
+    this.y = constrain(this.y, 0, worldHeight);
   }
 }
