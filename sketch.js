@@ -24,7 +24,7 @@ function setup() {
   cameraX = snake.x;
   cameraY = snake.y;
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 6; i++) {
     let opponent = new OpponentSnake(random(worldWidth), random(worldHeight));
     opponents.push(opponent);
   }
@@ -53,6 +53,13 @@ function draw() {
     image(startImage, width / 2 - startImage.width / 2, height / 2 - startImage.height / 2 - 150);
     startButton.draw();
   } else if (state === "game") {
+    // Display score
+    // Stick the score to the top left 
+    push();
+    textSize(30);
+    fill(255);
+    text("Score: " + score, 10, 30); 
+    pop();
     updateCamera();
     // Center the camera on the snake and apply scaling
     translate(width / 2, height / 2);
@@ -80,13 +87,10 @@ function draw() {
     // Check if the player's snake collides with any opponent snakes
     checkOpponentCollision();
 
-    // Display score
-    // Stick the score to the top left 
-    push();
-    textSize(20);
-    fill(255);
-    text("Score: " + score, 10, 30); 
-    pop();
+    // Check if opponent snakes collide with each other
+    checkOpponentOpponentCollision();
+
+    
   } else if (state === "game over") {
     // Display "GAME OVER" text
     push();
@@ -135,10 +139,34 @@ function checkSnakeCollision(snake1, snake2) {
 function checkOpponentCollision() {
   for (let opponent of opponents) {
     if (checkSnakeCollision(snake, opponent)) {
-      state = "game over";
-      break;
+      if (snake.length > opponent.length) {
+        respawnOpponent(opponent);
+      } else {
+        state = "game over";
+        break;
+      }
     }
   }
+}
+
+function checkOpponentOpponentCollision() {
+  for (let i = 0; i < opponents.length; i++) {
+    for (let j = i + 1; j < opponents.length; j++) {
+      if (checkSnakeCollision(opponents[i], opponents[j])) {
+        if (opponents[i].length > opponents[j].length) {
+          respawnOpponent(opponents[j]);
+        } else {
+          respawnOpponent(opponents[i]);
+        }
+      }
+    }
+  }
+}
+
+function respawnOpponent(opponent) {
+  opponent.x = random(worldWidth);
+  opponent.y = random(worldHeight);
+  opponent.length = 10;
 }
 
 class SlitherSnake {
