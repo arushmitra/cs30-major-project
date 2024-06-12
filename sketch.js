@@ -77,6 +77,9 @@ function draw() {
     // Check if the player's snake hits any food
     checkFoodCollision(snake);
 
+    // Check if the player's snake collides with any opponent snakes
+    checkOpponentCollision();
+
     // Display score
     // Stick the score to the top left 
     push();
@@ -84,13 +87,23 @@ function draw() {
     fill(255);
     text("Score: " + score, 10, 30); 
     pop();
+  } else if (state === "game over") {
+    // Display "GAME OVER" text
+    push();
+    textSize(64);
+    fill(255, 0, 0);
+    textAlign(CENTER, CENTER);
+    text("GAME OVER", width / 2, height / 2);
+    pop();
   }
 }
+
 function mousePressed() {
   let dx = mouseX - width / 2;
   let dy = mouseY - height / 2;
   let angle = atan2(dy, dx);
 }
+
 function updateCamera() {
   cameraX = snake.x;
   cameraY = snake.y;
@@ -102,6 +115,28 @@ function checkFoodCollision(snake) {
       foods.splice(i, 1);
       snake.grow();
       score += 1; // Increase score
+    }
+  }
+}
+
+function checkSnakeCollision(snake1, snake2) {
+  for (let i = 0; i < snake1.path.length; i++) {
+    let point1 = snake1.path[i];
+    for (let j = 0; j < snake2.path.length; j++) {
+      let point2 = snake2.path[j];
+      if (dist(point1.x, point1.y, point2.x, point2.y) < snake1.radius + snake2.radius) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function checkOpponentCollision() {
+  for (let opponent of opponents) {
+    if (checkSnakeCollision(snake, opponent)) {
+      state = "game over";
+      break;
     }
   }
 }
