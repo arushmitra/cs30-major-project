@@ -10,8 +10,8 @@ let cameraX, cameraY;
 let state = "start";
 let startButton = new Clickable();
 let startImage;
-let worldWidth = 3000;
-let worldHeight = 3000;
+let worldWidth = 5000;
+let worldHeight = 5000;
 
 function preload() {
   startImage = loadImage('title-page.png'); // Load your image here
@@ -24,7 +24,7 @@ function setup() {
   cameraX = snake.x;
   cameraY = snake.y;
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 3; i++) {
     let opponent = new OpponentSnake(random(worldWidth), random(worldHeight));
     opponents.push(opponent);
   }
@@ -89,7 +89,6 @@ function draw() {
 
     // Check if opponent snakes collide with each other
     checkOpponentOpponentCollision();
-
     
   } else if (state === "game over") {
     // Display "GAME OVER" text
@@ -140,7 +139,10 @@ function checkOpponentCollision() {
   for (let opponent of opponents) {
     if (checkSnakeCollision(snake, opponent)) {
       if (snake.length > opponent.length) {
-        respawnOpponent(opponent);
+        // Increase player's snake length by 10
+        snake.length += 10;
+        // Remove the opponent from the opponents array
+        opponents.splice(opponents.indexOf(opponent), 1);
       } else {
         state = "game over";
         break;
@@ -176,15 +178,20 @@ class SlitherSnake {
     this.x = x;
     this.y = y;
     this.color = color(random(255), random(255), random(255));
-    this.length = 1;
+    this.headColor = color(random(255), random(255), random(255));
+    this.length = 10;
     this.path = [];
   }
 
   display() {
-    fill(this.color);
     noStroke();
     for (let i = 0; i < this.path.length; i++) {
       let point = this.path[i];
+      if (i == 0) {
+        fill(this.headColor);
+      } else {
+        fill(this.color);
+      }
       circle(point.x, point.y, this.radius * 2);
     }
   }
@@ -220,20 +227,25 @@ class SlitherSnake {
 
 class OpponentSnake {
   constructor(x, y) {
-    this.speed = 3.2;
-    this.radius = 10;
+    this.speed = 2;
+    this.radius = 20;
     this.x = x;
     this.y = y;
     this.color = color(random(255), random(255), random(255));
-    this.length = 10;  // Initial length
+    this.headColor = color(random(255), random(255), random(255));
+    this.length = 1;  // Initial length
     this.path = [];
   }
 
   display() {
-    fill(this.color);
     noStroke();
     for (let i = 0; i < this.path.length; i++) {
       let point = this.path[i];
+      if (i == 0) {
+        fill(this.headColor);
+      } else {
+        fill(this.color);
+      }
       circle(point.x, point.y, this.radius * 2);
     }
   }
