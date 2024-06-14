@@ -5,16 +5,24 @@
 let snake;
 let foods = [];
 let opponents = [];
-let score = 0; // Initialize score
+let score = 0; 
 let cameraX, cameraY;
 let state = "start";
-let startButton = new Clickable();
+let startButton;
+let instructionButton;
+let backButton;
 let startImage;
+let bgMusic;
+let youDiedMusic;
 let worldWidth = 5000;
 let worldHeight = 5000;
+let zoom = 1; 
 
 function preload() {
-  startImage = loadImage('title-page.png'); // Load your image here
+  startImage = loadImage('assets/title-page.png'); // Load image here
+  bgMusic = loadSound('assets/Shake and Bake.mp3'); // Load music file 
+  youDiedMusic = loadSound('assets/Sad Ending Music.wav'); // Load death file 
+  
 }
 
 function setup() {
@@ -24,7 +32,7 @@ function setup() {
   cameraX = snake.x;
   cameraY = snake.y;
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 7; i++) {
     let opponent = new OpponentSnake(random(worldWidth), random(worldHeight));
     opponents.push(opponent);
   }
@@ -39,11 +47,34 @@ function setup() {
   startButton.x = width / 2 - 100;
   startButton.y = height / 2 + 100;
   startButton.width = 200;
-  startButton.height = 100;
+  startButton.height = 50;
   startButton.textSize = 32;
   startButton.text = "Start Game";
   startButton.onPress = () => {
     state = "game";
+    bgMusic.loop();
+  };
+
+  instructionButton = new Clickable();
+  instructionButton.x = width / 2 - 100;
+  instructionButton.y = height / 2 + 200;
+  instructionButton.width = 200;
+  instructionButton.height = 50;
+  instructionButton.textSize = 32;
+  instructionButton.text = "Instructions";
+  instructionButton.onPress = () => {
+    state = "instructions";
+  };
+
+  backButton = new Clickable();
+  backButton.x = width / 2 - 100;
+  backButton.y = height / 2 + 300;
+  backButton.width = 200;
+  backButton.height = 50;
+  backButton.textSize = 32;
+  backButton.text = "Back";
+  backButton.onPress = () => {
+    state = "start";
   };
 }
 
@@ -52,6 +83,7 @@ function draw() {
   if (state === "start") {
     image(startImage, width / 2 - startImage.width / 2, height / 2 - startImage.height / 2 - 150);
     startButton.draw();
+    instructionButton.draw();
   } else if (state === "game") {
     // Display score
     // Stick the score to the top left 
@@ -63,7 +95,7 @@ function draw() {
     updateCamera();
     // Center the camera on the snake and apply scaling
     translate(width / 2, height / 2);
-    scale(1.0); // Optional: Adjust zoom level if needed
+    scale(zoom); // Use zoom variable for scaling
     translate(-cameraX, -cameraY);
 
     // Display food
@@ -90,21 +122,33 @@ function draw() {
     // Check if opponent snakes collide with each other
     checkOpponentOpponentCollision();
     
+  } else if (state === "instructions") {
+    push();
+    textSize(30);
+    fill(255);
+    textAlign(CENTER);
+    text("This is a SlitherIO rip off. To play this game you have to eat the food as fast as you can and kill your opponents to win.", width / 2, height / 2);
+    text("You have to eat the smaller snake to grow, but if you're the smaller one- you're gonna die.", width / 2, height / 2 + 100);
+
+    pop();
+    backButton.draw();
   } else if (state === "game over") {
+    bgMusic.stop();
     // Display "GAME OVER" text
     push();
     textSize(64);
     fill(255, 0, 0);
     textAlign(CENTER, CENTER);
     text("GAME OVER", width / 2, height / 2);
+    youDiedMusic.loop()
     pop();
   }
 }
 
-function mousePressed() {
-  let dx = mouseX - width / 2;
-  let dy = mouseY - height / 2;
-  let angle = atan2(dy, dx);
+function mouseWheel(x) {
+  // Adjust zoom level based on scroll wheel movement
+  zoom -= x.delta / 1000;
+  zoom = constrain(zoom, 0.5, 2); 
 }
 
 function updateCamera() {
@@ -117,7 +161,7 @@ function checkFoodCollision(snake) {
     if (dist(snake.x, snake.y, foods[i].x, foods[i].y) < snake.radius) {
       foods.splice(i, 1);
       snake.grow();
-      score += 1; // Increase score
+      score += 1; 
     }
   }
 }
@@ -140,7 +184,8 @@ function checkOpponentCollision() {
     if (checkSnakeCollision(snake, opponent)) {
       if (snake.length > opponent.length) {
         // Increase player's snake length by 10
-        snake.length += 10;
+        snake.length += 25;
+        snake.score += 25;
         // Remove the opponent from the opponents array
         opponents.splice(opponents.indexOf(opponent), 1);
       } else {
@@ -174,7 +219,7 @@ function respawnOpponent(opponent) {
 class SlitherSnake {
   constructor(x, y) {
     this.speed = 5;
-    this.radius = 15;
+    this.radius = 19;
     this.x = x;
     this.y = y;
     this.color = color(random(255), random(255), random(255));
@@ -227,13 +272,13 @@ class SlitherSnake {
 
 class OpponentSnake {
   constructor(x, y) {
-    this.speed = 2;
+    this.speed = 1.3;
     this.radius = 20;
     this.x = x;
     this.y = y;
     this.color = color(random(255), random(255), random(255));
     this.headColor = color(random(255), random(255), random(255));
-    this.length = 1;  // Initial length
+    this.length = 1;  
     this.path = [];
   }
 
@@ -251,7 +296,7 @@ class OpponentSnake {
   }
 
   grow() {
-    this.length += 2;
+    this.length += 2.2;
   }
 
   update() {
@@ -321,12 +366,18 @@ class Food {
   }
 
   display() {
+    drawingContext.shadowBlur = 20; 
+    drawingContext.shadowColor = this.color;
     fill(this.color);
     noStroke();
     circle(this.x, this.y, this.radiusOfFood * 2);
-
+    
+    drawingContext.shadowBlur = 0;
+    drawingContext.shadowColor = 'rgba(0,0,0,0)';
+    
     // Ensure food stays within the world boundaries
     this.x = constrain(this.x, 0, worldWidth);
     this.y = constrain(this.y, 0, worldHeight);
   }
 }
+
