@@ -1,6 +1,5 @@
 // Slither.io Rip Off
 // Arush Mitra 
-// Comp Sci 30 Major Project
 
 let snake;
 let foods = [];
@@ -141,6 +140,7 @@ function draw() {
     textSize(30);
     fill(255);
     textAlign(CENTER);
+    
     text("This is a SlitherIO rip off. To play this game you have to eat the food as fast as you can and kill your opponents to win.", width / 2, height / 2);
     text("You have to eat the smaller snake to grow, but if you're the smaller one- you're gonna die.", width / 2, height / 2 + 100);
     text("If you click the mouse, you will speed up but lose your length!", width / 2, height / 2 + 200);
